@@ -1,11 +1,83 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/components/providers/AuthContext';
+import { Bell, Calendar, Users, MessageSquare, Gamepad2, Crown, TrendingUp, ExternalLink } from 'lucide-react';
+
+interface HomeStats {
+    totalMembers: number;
+    onlineMembers: number;
+    totalMessages: number;
+    totalClans: number;
+    recentAnnouncements: Array<{
+        id: string;
+        title: string;
+        type: string;
+        createdAt: number;
+        author: {
+            name: string;
+            avatar: string;
+        };
+    }>;
+    topGames: Array<{
+        name: string;
+        playerCount: number;
+        icon: string;
+    }>;
+}
 
 const HomeContent: React.FC = () => {
     const { user, isAuthenticated } = useAuth();
+    const [stats, setStats] = useState<HomeStats | null>(null);
+    const [statsLoading, setStatsLoading] = useState(true);
+
+    useEffect(() => {
+        fetchHomeStats();
+    }, []);
+
+    const fetchHomeStats = async () => {
+        try {
+            setStatsLoading(true);
+            const response = await fetch('/api/home/stats');
+            
+            if (response.ok) {
+                const data = await response.json();
+                setStats(data);
+            }
+        } catch (error) {
+            console.error('Error fetching home stats:', error);
+        } finally {
+            setStatsLoading(false);
+        }
+    };
+
+    const formatDate = (timestamp: number) => {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now.getTime() - date.getTime();
+        
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+        if (hours < 24) {
+            return `${hours} saat önce`;
+        } else if (days < 7) {
+            return `${days} gün önce`;
+        } else {
+            return date.toLocaleDateString('tr-TR');
+        }
+    };
+
+    const getAnnouncementTypeColor = (type: string) => {
+        switch (type) {
+            case 'important': return 'bg-red-500/20 text-red-400';
+            case 'event': return 'bg-purple-500/20 text-purple-400';
+            case 'update': return 'bg-green-500/20 text-green-400';
+            case 'maintenance': return 'bg-orange-500/20 text-orange-400';
+            default: return 'bg-blue-500/20 text-blue-400';
+        }
+    };
 
     return (
         <div className="relative overflow-hidden">
@@ -177,30 +249,200 @@ const HomeContent: React.FC = () => {
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-4xl mx-auto text-center">
                         <h2 className="text-3xl lg:text-4xl font-bold mb-16 text-white">
-                            Topluluk <span className="text-[#5865f2]">İstatistikleri</span>
+                            Canlı Topluluk <span className="text-[#5865f2]">İstatistikleri</span>
                         </h2>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                            <div className="text-center">
-                                <div className="text-4xl lg:text-5xl font-bold text-[#5865f2] mb-2">250+</div>
-                                <div className="text-gray-300">Aktif Üye</div>
+                        {statsLoading ? (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                                {[1, 2, 3, 4].map(i => (
+                                    <div key={i} className="text-center animate-pulse">
+                                        <div className="h-12 bg-gray-600 rounded mb-2 mx-auto w-24"></div>
+                                        <div className="h-4 bg-gray-600 rounded mx-auto w-20"></div>
+                                    </div>
+                                ))}
                             </div>
-                            <div className="text-center">
-                                <div className="text-4xl lg:text-5xl font-bold text-blue-500 mb-2">50+</div>
-                                <div className="text-gray-300">Desteklenen Oyun</div>
+                        ) : stats ? (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                                <div className="text-center group">
+                                    <div className="text-4xl lg:text-5xl font-bold text-[#5865f2] mb-2 group-hover:scale-110 transition-transform duration-300">
+                                        {stats.totalMembers}+
+                                    </div>
+                                    <div className="text-gray-300 flex items-center justify-center space-x-1">
+                                        <Users size={16} />
+                                        <span>Toplam Üye</span>
+                                    </div>
+                                    <div className="text-xs text-green-400 mt-1">
+                                        {stats.onlineMembers} çevrimiçi
+                                    </div>
+                                </div>
+                                <div className="text-center group">
+                                    <div className="text-4xl lg:text-5xl font-bold text-blue-500 mb-2 group-hover:scale-110 transition-transform duration-300">
+                                        {Math.floor(stats.totalMessages / 1000)}K+
+                                    </div>
+                                    <div className="text-gray-300 flex items-center justify-center space-x-1">
+                                        <MessageSquare size={16} />
+                                        <span>Toplam Mesaj</span>
+                                    </div>
+                                    <div className="text-xs text-blue-400 mt-1">
+                                        Tüm zamanlar
+                                    </div>
+                                </div>
+                                <div className="text-center group">
+                                    <div className="text-4xl lg:text-5xl font-bold text-green-500 mb-2 group-hover:scale-110 transition-transform duration-300">
+                                        {stats.totalClans}+
+                                    </div>
+                                    <div className="text-gray-300 flex items-center justify-center space-x-1">
+                                        <Crown size={16} />
+                                        <span>Aktif Klan</span>
+                                    </div>
+                                    <div className="text-xs text-green-400 mt-1">
+                                        Rekabet halinde
+                                    </div>
+                                </div>
+                                <div className="text-center group">
+                                    <div className="text-4xl lg:text-5xl font-bold text-yellow-500 mb-2 group-hover:scale-110 transition-transform duration-300">
+                                        24/7
+                                    </div>
+                                    <div className="text-gray-300 flex items-center justify-center space-x-1">
+                                        <TrendingUp size={16} />
+                                        <span>Aktif Topluluk</span>
+                                    </div>
+                                    <div className="text-xs text-yellow-400 mt-1">
+                                        Sürekli büyüyor
+                                    </div>
+                                </div>
                             </div>
-                            <div className="text-center">
-                                <div className="text-4xl lg:text-5xl font-bold text-green-500 mb-2">100+</div>
-                                <div className="text-gray-300">Günlük Mesaj</div>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                                <div className="text-center">
+                                    <div className="text-4xl lg:text-5xl font-bold text-[#5865f2] mb-2">250+</div>
+                                    <div className="text-gray-300">Aktif Üye</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-4xl lg:text-5xl font-bold text-blue-500 mb-2">50+</div>
+                                    <div className="text-gray-300">Desteklenen Oyun</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-4xl lg:text-5xl font-bold text-green-500 mb-2">100+</div>
+                                    <div className="text-gray-300">Günlük Mesaj</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-4xl lg:text-5xl font-bold text-yellow-500 mb-2">24/7</div>
+                                    <div className="text-gray-300">Destek</div>
+                                </div>
                             </div>
-                            <div className="text-center">
-                                <div className="text-4xl lg:text-5xl font-bold text-yellow-500 mb-2">24/7</div>
-                                <div className="text-gray-300">Destek</div>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </section>
+
+            {/* Recent Activity Section */}
+            {stats && (
+                <section className="py-20 bg-gradient-to-br from-[#2f3136]/30 to-[#36393f]/30">
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {/* Recent Announcements */}
+                                <div className="bg-[#2f3136]/80 border border-white/10 rounded-2xl p-8">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
+                                            <Bell className="text-[#5865f2]" size={24} />
+                                            <span>Son Duyurular</span>
+                                        </h3>
+                                        <Link 
+                                            href="/announcements" 
+                                            className="text-[#5865f2] hover:text-[#4752c4] transition-colors flex items-center space-x-1 text-sm"
+                                        >
+                                            <span>Tümü</span>
+                                            <ExternalLink size={14} />
+                                        </Link>
+                                    </div>
+                                    
+                                    <div className="space-y-4">
+                                        {stats.recentAnnouncements.length === 0 ? (
+                                            <div className="text-center py-8 text-gray-400">
+                                                <Bell className="mx-auto mb-2" size={32} />
+                                                <p>Henüz duyuru bulunmuyor</p>
+                                            </div>
+                                        ) : (
+                                            stats.recentAnnouncements.map(announcement => (
+                                                <Link
+                                                    key={announcement.id}
+                                                    href={`/announcements`}
+                                                    className="block p-4 bg-[#36393f]/50 rounded-lg border border-white/5 hover:border-[#5865f2]/30 transition-all duration-300 hover:scale-105 group"
+                                                >
+                                                    <div className="flex items-start space-x-3">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center space-x-2 mb-2">
+                                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getAnnouncementTypeColor(announcement.type)}`}>
+                                                                    {announcement.type}
+                                                                </span>
+                                                                <span className="text-xs text-gray-400 flex items-center space-x-1">
+                                                                    <Calendar size={12} />
+                                                                    <span>{formatDate(announcement.createdAt)}</span>
+                                                                </span>
+                                                            </div>
+                                                            <h4 className="font-semibold text-white group-hover:text-[#5865f2] transition-colors">
+                                                                {announcement.title}
+                                                            </h4>
+                                                            <p className="text-sm text-gray-400 mt-1">
+                                                                {announcement.author.name} tarafından
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </Link>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Popular Games */}
+                                <div className="bg-[#2f3136]/80 border border-white/10 rounded-2xl p-8">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-2xl font-bold text-white flex items-center space-x-2">
+                                            <Gamepad2 className="text-green-400" size={24} />
+                                            <span>Popüler Oyunlar</span>
+                                        </h3>
+                                        <Link 
+                                            href="/games" 
+                                            className="text-green-400 hover:text-green-300 transition-colors flex items-center space-x-1 text-sm"
+                                        >
+                                            <span>Tümü</span>
+                                            <ExternalLink size={14} />
+                                        </Link>
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        {stats.topGames.map((game, index) => (
+                                            <div key={game.name} className="flex items-center justify-between p-3 bg-[#36393f]/50 rounded-lg border border-white/5 hover:border-green-400/30 transition-all duration-300">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-700 rounded-lg flex items-center justify-center text-sm">
+                                                        {game.icon}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-medium text-white">{game.name}</h4>
+                                                        <p className="text-xs text-gray-400">{game.playerCount} aktif oyuncu</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                                                        index === 0 ? 'bg-yellow-500 text-black' :
+                                                        index === 1 ? 'bg-gray-400 text-black' :
+                                                        index === 2 ? 'bg-orange-600 text-white' :
+                                                        'bg-[#5865f2] text-white'
+                                                    }`}>
+                                                        {index + 1}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
         </div>
     );
 };
