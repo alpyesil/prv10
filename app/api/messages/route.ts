@@ -8,9 +8,8 @@ import {
     createMessage,
     updateConversation,
     createConversation,
-    createNotification,
-    executeFirebaseOperation
-} from '@/lib/firebase-admin';
+    createNotification
+} from '@/lib/firebase-rest';
 
 export async function GET(request: NextRequest) {
     try {

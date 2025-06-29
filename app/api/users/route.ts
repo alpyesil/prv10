@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { getUserById, setUserData, updateUserLastSeen, adminDatabase } from '@/lib/firebase-admin';
+import { getUserById, setUserData, updateUserLastSeen } from '@/lib/firebase-rest';
 
 export async function GET(request: NextRequest) {
     try {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { getNotifications, createNotification, markNotificationAsRead, executeFirebaseOperation } from '@/lib/firebase-admin';
+import { getNotifications, createNotification, markNotificationAsRead } from '@/lib/firebase-rest';
 
 export async function GET(request: NextRequest) {
     try {
