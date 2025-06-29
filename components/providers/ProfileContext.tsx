@@ -128,6 +128,47 @@ export function ProfileProvider({ children, userId }: ProfileProviderProps) {
         }
     };
 
+    const fetchDiscordActivities = async () => {
+        if (!session?.accessToken) return;
+
+        try {
+            console.log('🎮 [ProfileContext] Fetching Discord activities');
+            const response = await fetch('/api/auth/discord/activities', {
+                headers: {
+                    'Authorization': `Bearer ${session.accessToken}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ [ProfileContext] Discord activities received:', data.activities?.length);
+                
+                // Discord activities'i Firebase activities'e dönüştür ve ekle
+                if (data.activities && data.activities.length > 0) {
+                    const discordActivities = data.activities.map((activity: any) => ({
+                        id: activity.id,
+                        type: activity.type,
+                        title: activity.title,
+                        description: activity.description,
+                        timestamp: activity.timestamp,
+                        icon: activity.icon,
+                        metadata: activity.metadata,
+                        source: 'discord'
+                    }));
+
+                    // Mevcut activities ile merge et
+                    setActivities(prevActivities => {
+                        const merged = [...prevActivities, ...discordActivities];
+                        // Timestamp'e göre sırala
+                        return merged.sort((a, b) => b.timestamp - a.timestamp);
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('💥 [ProfileContext] Error fetching Discord activities:', err);
+        }
+    };
+
     const fetchFriends = async () => {
         if (!session?.accessToken) {
             console.log('🔍 [ProfileContext] No access token for friends fetch');
@@ -166,7 +207,11 @@ export function ProfileProvider({ children, userId }: ProfileProviderProps) {
 
         const loadData = async () => {
             setIsLoading(true);
-            await Promise.all([fetchProfile(), fetchFriends()]);
+            await Promise.all([
+                fetchProfile(), 
+                fetchFriends(), 
+                fetchDiscordActivities()
+            ]);
             setIsLoading(false);
         };
 
@@ -213,7 +258,7 @@ export function ProfileProvider({ children, userId }: ProfileProviderProps) {
     }, [userId]);
 
     const refreshProfile = async () => {
-        await Promise.all([fetchProfile(), fetchFriends()]);
+        await Promise.all([fetchProfile(), fetchFriends(), fetchDiscordActivities()]);
     };
 
     return (

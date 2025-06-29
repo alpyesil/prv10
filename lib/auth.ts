@@ -9,7 +9,7 @@ export const authOptions: NextAuthOptions = {
             clientSecret: process.env.DISCORD_CLIENT_SECRET!,
             authorization: {
                 params: {
-                    scope: 'identify email guilds guilds.members.read',
+                    scope: 'identify email guilds guilds.members.read connections activities.read',
                 },
             },
         }),
