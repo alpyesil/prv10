@@ -13,7 +13,14 @@ interface ProfileFriendsProps {
 }
 
 export default function ProfileFriends({ userId }: ProfileFriendsProps) {
-    const { friends, isLoading: loading, error } = useProfileContext();
+    const { friends, friendsSource, isLoading: loading, error } = useProfileContext();
+    
+    console.log('👥 [ProfileFriends] Component state:', {
+        friendsCount: friends?.length,
+        loading,
+        error,
+        userId
+    });
     const { startConversation, registrationError, clearRegistrationError, error: messagesError } = useMessages();
     const router = useRouter();
     const [sendingMessageTo, setSendingMessageTo] = useState<string | null>(null);
@@ -100,8 +107,8 @@ export default function ProfileFriends({ userId }: ProfileFriendsProps) {
         );
     }
 
-    const displayFriends = friends?.friends?.slice(0, 4) || [];
-    const onlineFriends = friends?.friends?.filter(f => f.isOnline) || [];
+    const displayFriends = friends?.slice(0, 4) || [];
+    const onlineFriends = friends?.filter(f => f.isOnline) || [];
 
     return (
         <div className="bg-[#2f3136] rounded-xl border border-white/10 p-6">
@@ -117,9 +124,9 @@ export default function ProfileFriends({ userId }: ProfileFriendsProps) {
                 <div className="text-center py-8">
                     <div className="text-4xl mb-2">👥</div>
                     <p className="text-gray-400 text-sm">
-                        {friends?.source === 'mock' ? 'Mock arkadaş verisi' : 'Henüz arkadaş bulunamadı'}
+                        {friendsSource === 'mock' ? 'Mock arkadaş verisi' : 'Henüz arkadaş bulunamadı'}
                     </p>
-                    {friends?.source === 'mock' && (
+                    {friendsSource === 'mock' && (
                         <p className="text-gray-500 text-xs mt-1">Discord Guild Members yükleniyor...</p>
                     )}
                 </div>
@@ -203,11 +210,11 @@ export default function ProfileFriends({ userId }: ProfileFriendsProps) {
                             href={`/profile/${userId}/friends`}
                             className="block text-center text-[#5865f2] hover:text-[#4752c4] transition-colors duration-300 font-medium"
                         >
-                            Tüm Arkadaşları Görüntüle ({friends?.total || 0})
+                            Tüm Arkadaşları Görüntüle ({friends?.length || 0})
                         </Link>
-                        {friends?.source === 'discord' && (
+                        {friendsSource === 'discord' && (
                             <p className="text-center text-xs text-gray-500 mt-1">
-                                {friends.guildTotal} guild üyesinden {friends.total} arkadaş
+                                Discord guild üyelerinden {friends?.length || 0} arkadaş
                             </p>
                         )}
 

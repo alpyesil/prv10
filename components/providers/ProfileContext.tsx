@@ -83,6 +83,7 @@ interface Friend {
 interface ProfileContextType {
     profile: DiscordProfile | null;
     friends: Friend[];
+    friendsSource: string | null;
     comments: ProfileComment[];
     activities: ProfileActivity[];
     isLoading: boolean;
@@ -101,6 +102,7 @@ export function ProfileProvider({ children, userId }: ProfileProviderProps) {
     const { data: session, status } = useSession();
     const [profile, setProfile] = useState<DiscordProfile | null>(null);
     const [friends, setFriends] = useState<Friend[]>([]);
+    const [friendsSource, setFriendsSource] = useState<string | null>(null);
     const [comments, setComments] = useState<ProfileComment[]>([]);
     const [activities, setActivities] = useState<ProfileActivity[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -127,9 +129,13 @@ export function ProfileProvider({ children, userId }: ProfileProviderProps) {
     };
 
     const fetchFriends = async () => {
-        if (!session?.accessToken) return;
+        if (!session?.accessToken) {
+            console.log('🔍 [ProfileContext] No access token for friends fetch');
+            return;
+        }
 
         try {
+            console.log('👥 [ProfileContext] Fetching friends for userId:', userId);
             const response = await fetch('/api/auth/discord/friends', {
                 headers: {
                     'Authorization': `Bearer ${session.accessToken}`
@@ -139,9 +145,15 @@ export function ProfileProvider({ children, userId }: ProfileProviderProps) {
             if (!response.ok) throw new Error('Failed to fetch friends');
 
             const data = await response.json();
+            console.log('✅ [ProfileContext] Friends data received:', {
+                total: data.total,
+                friendsCount: data.friends?.length,
+                source: data.source
+            });
             setFriends(data.friends || []);
+            setFriendsSource(data.source || null);
         } catch (err) {
-            console.error('Error fetching friends:', err);
+            console.error('💥 [ProfileContext] Error fetching friends:', err);
         }
     };
 
@@ -208,6 +220,7 @@ export function ProfileProvider({ children, userId }: ProfileProviderProps) {
         <ProfileContext.Provider value={{
             profile,
             friends,
+            friendsSource,
             comments,
             activities,
             isLoading,
