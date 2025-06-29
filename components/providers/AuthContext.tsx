@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface User {
     id: string;
@@ -30,8 +31,10 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
     const { data: session, status } = useSession();
+    const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [sessionExpired, setSessionExpired] = useState(false);
 
     useEffect(() => {
         console.log('🔍 [AuthProvider] Session status:', status);
@@ -58,10 +61,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } else {
             console.log('❌ [AuthProvider] No user session found');
             setUser(null);
+            
+            // Token süresi dolmuşsa ve daha önce giriş yapılmışsa
+            if (sessionExpired && status === 'unauthenticated') {
+                router.push('/auth/signin?error=SessionRequired');
+                setSessionExpired(false);
+            }
         }
 
         setLoading(false);
-    }, [session, status]);
+    }, [session, status, sessionExpired, router]);
 
     const refreshUser = async () => {
         try {
@@ -91,14 +100,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     };
 
-    const login = () => {
+    const login = async () => {
         console.log('🔑 [AuthProvider] User login initiated');
-        signIn('discord');
+        try {
+            await signIn('discord');
+        } catch (error) {
+            console.error('💥 [AuthProvider] Login error:', error);
+            router.push('/auth/error?error=OAuthSignin');
+        }
     };
 
-    const logout = () => {
+    const logout = async () => {
         console.log('🚪 [AuthProvider] User signing out');
-        signOut();
+        try {
+            // Kullanıcının manuel çıkış yaptığını işaretle
+            if (user) {
+                setSessionExpired(false);
+            }
+            await signOut({ callbackUrl: '/' });
+        } catch (error) {
+            console.error('💥 [AuthProvider] Logout error:', error);
+        }
     };
 
     const value: AuthContextType = {
