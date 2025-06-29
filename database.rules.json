@@ -1,0 +1,48 @@
+{
+  "rules": {
+    "users": {
+      "$userId": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $userId",
+        ".validate": "newData.hasChildren(['discordId', 'username', 'isRegistered', 'lastSeen'])"
+      }
+    },
+    "conversations": {
+      "$conversationId": {
+        ".read": "auth != null && data.child('participants').child(auth.uid).exists()",
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['participants', 'createdAt', 'updatedAt'])"
+      }
+    },
+    "messages": {
+      "$conversationId": {
+        ".read": "auth != null && root.child('conversations').child($conversationId).child('participants').child(auth.uid).exists()",
+        ".write": "auth != null && root.child('conversations').child($conversationId).child('participants').child(auth.uid).exists()",
+        "$messageId": {
+          ".validate": "newData.hasChildren(['senderId', 'content', 'timestamp', 'type'])"
+        }
+      }
+    },
+    "notifications": {
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null",
+        "$notificationId": {
+          ".validate": "newData.hasChildren(['type', 'timestamp', 'read'])"
+        }
+      }
+    },
+    "profiles": {
+      "$userId": {
+        "comments": {
+          ".read": "true",
+          ".write": "auth != null"
+        },
+        "activity": {
+          ".read": "true",
+          ".write": "auth != null"
+        }
+      }
+    }
+  }
+}
