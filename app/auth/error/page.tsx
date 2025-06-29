@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { FaExclamationTriangle, FaHome, FaArrowLeft } from "react-icons/fa";
+import { AlertTriangle, Home, ArrowLeft } from "lucide-react";
 
 export default function ErrorPage() {
     const searchParams = useSearchParams();
@@ -43,7 +43,7 @@ export default function ErrorPage() {
         <div className="min-h-screen flex items-center justify-center bg-gray-900">
             <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full text-center">
                 <div className="mb-6">
-                    <FaExclamationTriangle className="text-6xl text-red-500 mx-auto mb-4" />
+                    <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
                     <h1 className="text-2xl font-bold text-white mb-2">
                         Giriş Hatası
                     </h1>
@@ -57,7 +57,7 @@ export default function ErrorPage() {
                         href="/auth/signin"
                         className="w-full flex items-center justify-center gap-2 bg-discord-purple hover:bg-discord-purple/90 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                     >
-                        <FaArrowLeft />
+                        <ArrowLeft className="w-4 h-4" />
                         <span>Tekrar Dene</span>
                     </Link>
 
@@ -65,7 +65,7 @@ export default function ErrorPage() {
                         href="/"
                         className="w-full flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                     >
-                        <FaHome />
+                        <Home className="w-4 h-4" />
                         <span>Ana Sayfaya Dön</span>
                     </Link>
                 </div>

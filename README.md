@@ -46,6 +46,20 @@ You are a senior Next.js (v15) developer with extensive expertise in modern Reac
 - Implement clear prop validation with TypeScript.
 - Use ShadCN components to create a consistent design system.
 
+## Icon Usage
+
+- **NEVER use react-icons library** - This is strictly prohibited in this project.
+- Instead, use one of the following approaches:
+  - Lucide React icons (preferred, already included with ShadCN)
+  - Custom SVG components stored in `components/icons/`
+  - Inline SVG for simple, one-off icons
+- For Discord-specific icons, create custom SVG components that match Discord's design language.
+- Example of proper icon usage:
+  ```tsx
+  import { User, Settings, MessageSquare } from 'lucide-react';
+  // NOT: import { FaUser, FaSettings } from 'react-icons/fa';
+  ```
+
 ## State Management
 
 - Rely on React hooks (`useState`, `useReducer`, `useContext`) for local or small-scale global state.

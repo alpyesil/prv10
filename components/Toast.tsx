@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { FaCheckCircle, FaExclamationCircle, FaInfoCircle, FaTimes } from 'react-icons/fa';
+import { CheckCircle, AlertCircle, Info, X } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -25,9 +25,9 @@ export function Toast({ message, type, duration = 5000, onClose }: ToastProps) {
     }, [duration, onClose]);
 
     const icons = {
-        success: <FaCheckCircle className="text-green-400" />,
-        error: <FaExclamationCircle className="text-red-400" />,
-        info: <FaInfoCircle className="text-blue-400" />
+        success: <CheckCircle className="w-5 h-5 text-green-400" />,
+        error: <AlertCircle className="w-5 h-5 text-red-400" />,
+        info: <Info className="w-5 h-5 text-blue-400" />
     };
 
     const styles = {
@@ -48,7 +48,7 @@ export function Toast({ message, type, duration = 5000, onClose }: ToastProps) {
                     }}
                     className="text-gray-400 hover:text-white transition-colors"
                 >
-                    <FaTimes />
+                    <X className="w-4 h-4" />
                 </button>
             </div>
         </div>

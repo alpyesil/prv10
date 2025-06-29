@@ -3,7 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FaDiscord } from "react-icons/fa";
+import { DiscordIcon } from "@/components/icons/DiscordIcon";
 
 export default function SignInPage() {
     const searchParams = useSearchParams();
@@ -56,7 +56,7 @@ export default function SignInPage() {
                     disabled={loading}
                     className="w-full flex items-center justify-center gap-3 bg-discord-purple hover:bg-discord-purple/90 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <FaDiscord className="text-xl" />
+                    <DiscordIcon className="w-5 h-5" />
                     <span>{loading ? "Yönlendiriliyor..." : "Discord ile Giriş Yap"}</span>
                 </button>
 
