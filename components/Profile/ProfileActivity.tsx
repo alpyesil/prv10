@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useProfile } from '@/lib/hooks/useProfile';
+import { useProfileContext } from '@/components/providers/ProfileContext';
 import { useSession } from 'next-auth/react';
 
 interface Activity {
@@ -24,7 +24,7 @@ const mockActivities: Activity[] = [];
 
 export default function ProfileActivity({ userId }: ProfileActivityProps) {
     const { data: session } = useSession();
-    const { activities, addActivity, loading, error } = useProfile(userId);
+    const { activities, isLoading: loading, error } = useProfileContext();
     const [filter, setFilter] = useState<'all' | Activity['type']>('all');
 
     const getActivityIcon = (type: Activity['type']) => {

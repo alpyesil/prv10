@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useProfile } from '@/lib/hooks/useProfile';
+import { useProfileContext } from '@/components/providers/ProfileContext';
 
 interface GamePlatform {
     type: string;
@@ -30,7 +30,7 @@ interface ProfileGamesProps {
 }
 
 export default function ProfileGames({ userId }: ProfileGamesProps) {
-    const { discordProfile, loading } = useProfile(userId);
+    const { discordProfile, loading } = useProfileContext();
     const [games, setGames] = useState<GameData[]>([]);
     const [platforms, setPlatforms] = useState<GamePlatform[]>([]);
     const [activeTab, setActiveTab] = useState<string>('all');

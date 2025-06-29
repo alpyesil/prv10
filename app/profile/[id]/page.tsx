@@ -6,6 +6,7 @@ import { ProfileHeader, ProfileGames, ProfileComments, ProfileActivity, ProfileF
 import Layout from '@/components/Layout';
 import { useAuth } from '@/components/providers/AuthContext';
 import { ProfileSkeleton, Loading } from '@/components/ui/loading';
+import { ProfileProvider } from '@/components/providers/ProfileContext';
 
 interface UserData {
     id: string;
@@ -274,7 +275,8 @@ export default function ProfilePage() {
 
     return (
         <Layout>
-            <div className="min-h-screen bg-gradient-to-br from-[#1e1f24] via-[#2a2d31] to-[#36393f]">
+            <ProfileProvider userId={userId}>
+                <div className="min-h-screen bg-gradient-to-br from-[#1e1f24] via-[#2a2d31] to-[#36393f]">
                 {/* Profile Header */}
                 <ProfileHeader
                     user={userData}
@@ -405,7 +407,8 @@ export default function ProfilePage() {
                     userData={userData}
                     onSave={handleProfileSave}
                 />
-            </div>
+                </div>
+            </ProfileProvider>
         </Layout>
     );
 } 

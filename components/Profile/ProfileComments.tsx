@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { useProfile } from '@/lib/hooks/useProfile';
+import { useProfileContext } from '@/components/providers/ProfileContext';
 import { useSession } from 'next-auth/react';
 
 interface ProfileComment {
@@ -23,7 +23,7 @@ interface ProfileCommentsProps {
 
 export default function ProfileComments({ userId }: ProfileCommentsProps) {
     const { data: session } = useSession();
-    const { comments, addComment, likeComment, deleteComment, loading, error } = useProfile(userId);
+    const { comments, isLoading: loading, error } = useProfileContext();
     const [newComment, setNewComment] = useState('');
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [replyText, setReplyText] = useState('');
@@ -31,17 +31,13 @@ export default function ProfileComments({ userId }: ProfileCommentsProps) {
 
     const handleAddComment = async () => {
         if (!newComment.trim() || isSubmitting) return;
-
-        setIsSubmitting(true);
-        const success = await addComment(newComment);
-        if (success) {
-            setNewComment('');
-        }
-        setIsSubmitting(false);
+        // TODO: Implement comment adding functionality
+        console.log('Adding comment:', newComment);
     };
 
     const handleLikeComment = async (commentId: string) => {
-        await likeComment(commentId);
+        // TODO: Implement comment liking functionality
+        console.log('Liking comment:', commentId);
     };
 
     const isCommentLiked = (comment: any) => {

@@ -9,7 +9,7 @@ const serviceAccount: ServiceAccount = {
     privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
 };
 
-const databaseURL = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || 'https://prv10-12ea2-default-rtdb.europe-west1.firebasedatabase.app';
+const databaseURL = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL;
 
 // Initialize Firebase Admin App only once
 function initializeFirebaseAdmin() {

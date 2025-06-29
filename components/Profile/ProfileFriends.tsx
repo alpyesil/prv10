@@ -1,6 +1,6 @@
 "use client";
 
-import { useProfile } from '@/lib/hooks/useProfile';
+import { useProfileContext } from '@/components/providers/ProfileContext';
 import { useMessages } from '@/lib/hooks/useMessages';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ interface ProfileFriendsProps {
 }
 
 export default function ProfileFriends({ userId }: ProfileFriendsProps) {
-    const { friends, loading, error } = useProfile(userId);
+    const { friends, isLoading: loading, error } = useProfileContext();
     const { startConversation, registrationError, clearRegistrationError, error: messagesError } = useMessages();
     const router = useRouter();
     const [sendingMessageTo, setSendingMessageTo] = useState<string | null>(null);
