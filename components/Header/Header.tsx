@@ -55,7 +55,9 @@ const Header: React.FC = () => {
                                 { href: '/games', label: 'Oyunlar', icon: '🎮' },
                                 { href: '/announcements', label: 'Duyurular', icon: '📢' },
                                 { href: '/members', label: 'Üyeler', icon: '👥' },
-                                ...(isAuthenticated ? [{ href: '/messages', label: 'Mesajlar', icon: '💬' }] : [])
+                                { href: '/clans', label: 'Klanlar', icon: '⚔️' },
+                                ...(isAuthenticated ? [{ href: '/messages', label: 'Mesajlar', icon: '💬' }] : []),
+                                ...(isAuthenticated && user?.roles?.some(role => ['admin', 'super_admin'].includes(role.toLowerCase())) ? [{ href: '/admin', label: 'Admin', icon: '🛡️' }] : [])
                             ].map((item) => (
                                 <Link
                                     key={item.href}
@@ -289,7 +291,9 @@ const Header: React.FC = () => {
                             { href: '/games', label: 'Oyunlar', icon: '🎮' },
                             { href: '/announcements', label: 'Duyurular', icon: '📢' },
                             { href: '/members', label: 'Üyeler', icon: '👥' },
-                            ...(isAuthenticated ? [{ href: '/messages', label: 'Mesajlar', icon: '💬' }] : [])
+                            { href: '/clans', label: 'Klanlar', icon: '⚔️' },
+                            ...(isAuthenticated ? [{ href: '/messages', label: 'Mesajlar', icon: '💬' }] : []),
+                            ...(isAuthenticated && user?.roles?.some(role => ['admin', 'super_admin'].includes(role.toLowerCase())) ? [{ href: '/admin', label: 'Admin', icon: '🛡️' }] : [])
                         ].map((item) => (
                             <Link
                                 key={item.href}

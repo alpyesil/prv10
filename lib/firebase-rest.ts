@@ -102,6 +102,7 @@ async function firebaseRequest(path: string, method: 'GET' | 'PUT' | 'POST' | 'P
 
 // Simple cache for user data
 const userCache = new Map<string, { data: any; timestamp: number }>();
+const dataCache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_DURATION = 30000; // 30 seconds
 
 // REST API based Firebase operations
@@ -283,3 +284,53 @@ export const markNotificationAsRead = async (userId: string, notificationId: str
         throw error;
     }
 };
+
+// Database Reference class to mimic Firebase Admin SDK
+class DatabaseReference {
+    private path: string;
+
+    constructor(path: string) {
+        this.path = path;
+    }
+
+    async get() {
+        const data = await firebaseRequest(this.path);
+        return {
+            exists: () => data !== null && data !== undefined,
+            val: () => data
+        };
+    }
+
+    async set(value: any) {
+        await firebaseRequest(this.path, 'PUT', value);
+    }
+
+    async update(updates: any) {
+        await firebaseRequest(this.path, 'PATCH', updates);
+    }
+
+    async remove() {
+        await firebaseRequest(this.path, 'DELETE');
+    }
+
+    child(childPath: string) {
+        const newPath = this.path === '/' ? `/${childPath}` : `${this.path}/${childPath}`;
+        return new DatabaseReference(newPath);
+    }
+
+    ref(childPath: string) {
+        return this.child(childPath);
+    }
+}
+
+// Database class to mimic Firebase Admin SDK
+class Database {
+    ref(path: string = '/') {
+        // Ensure path starts with /
+        const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+        return new DatabaseReference(normalizedPath);
+    }
+}
+
+// Export the database instance
+export const database = new Database();
