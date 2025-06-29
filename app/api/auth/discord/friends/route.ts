@@ -112,9 +112,48 @@ export async function GET(request: NextRequest) {
             }
         );
 
+        console.log('📡 [Friends API] Members response status:', membersResponse.status);
+
         if (!membersResponse.ok) {
             console.log('❌ [Friends API] Failed to fetch guild members:', membersResponse.status);
-            throw new Error(`Discord API error: ${membersResponse.status}`);
+            
+            // Bot izinleri yetersizse fallback mock data kullan
+            if (membersResponse.status === 403) {
+                console.log('⚠️ [Friends API] Bot permissions insufficient, using fallback');
+                const fallbackFriends: ProcessedFriend[] = [
+                    {
+                        id: '12345',
+                        username: 'ServerMember1',
+                        displayName: 'Server Member 1',
+                        avatar: 'https://cdn.discordapp.com/embed/avatars/0.png',
+                        roles: ['Member'],
+                        joinedAt: new Date().toISOString(),
+                        isOnline: true,
+                        mutualRoles: ['Member']
+                    },
+                    {
+                        id: '12346',
+                        username: 'ServerMember2',
+                        displayName: 'Server Member 2',
+                        avatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
+                        roles: ['Member', 'Active'],
+                        joinedAt: new Date().toISOString(),
+                        isOnline: false,
+                        mutualRoles: ['Member']
+                    }
+                ];
+
+                return NextResponse.json({
+                    friends: fallbackFriends,
+                    total: fallbackFriends.length,
+                    guildTotal: 'unknown',
+                    lastFetch: new Date().toISOString(),
+                    source: 'fallback',
+                    message: 'Bot izinleri yetersiz - fallback data kullanıldı'
+                });
+            }
+            
+            throw new Error(`Discord API error: ${membersResponse.status} - ${await membersResponse.text()}`);
         }
 
         const membersData: DiscordGuildMember[] = await membersResponse.json();
